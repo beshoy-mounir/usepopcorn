@@ -1,16 +1,21 @@
-import React, { StrictMode } from "react";
-import ReactDOM from "react-dom/client";
-import "./index.css";
+import React, { StrictMode } from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
 // import App from "./App";
-import Stars from "./stars";
+import Stars from './stars';
 
-const maxRating = 10;
-const root = ReactDOM.createRoot(document.getElementById("root"));
+const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <StrictMode>
-    <div style={{ color: "white" }}>
+    <div style={{ color: 'white' }}>
       {/* <App /> */}
-      <Stars maxRating={maxRating} color={"aqua"} />
+      <Stars
+        defalutRating={0}
+        maxRating={5}
+        color={'aqua'}
+        className={'test'}
+        messages={['Beshoy', 'Mounir', 'reda', 'soliman', 'saleb']}
+      />
     </div>
   </StrictMode>
 );
