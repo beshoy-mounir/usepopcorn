@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import StarRating from './StarRating';
 
 const APIKEY = `${process.env.REACT_APP_API_KEY}`;
@@ -11,7 +11,7 @@ export default function App() {
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState(function () {
     const storedValue = localStorage.getItem('watched');
-    return JSON.parse(storedValue);
+    return JSON.parse(storedValue) || [];
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -89,7 +89,9 @@ export default function App() {
           {!isLoading && movies === undefined && (
             <p className="error">Movie Not Found</p>
           )}
-          {!isLoading && error && <p className="error">{`${error}`}</p>}
+          {!isLoading && error && (
+            <p className="error">{`Server error : ${error}`}</p>
+          )}
         </Box>
 
         <Box>
@@ -134,6 +136,23 @@ function Logo() {
 }
 
 function Search({ query, setQuery }) {
+  const inputEl = useRef(null);
+
+  useEffect(
+    function () {
+      function callback(e) {
+        if (document.activeElement === inputEl.current) return;
+
+        if (e.code === 'Enter') {
+          inputEl.current.focus();
+          setQuery('');
+        }
+      }
+      document.addEventListener('keydown', callback);
+    },
+    [setQuery]
+  );
+
   return (
     <input
       className="search"
@@ -141,6 +160,7 @@ function Search({ query, setQuery }) {
       placeholder="Search movies..."
       value={query}
       onChange={(e) => setQuery(e.target.value)}
+      ref={inputEl}
     />
   );
 }
@@ -352,9 +372,9 @@ function MovieDetails({ selectedId, handleCloseMovie, onAddWatched, watched }) {
 }
 
 function WatchedSummary({ watched }) {
-  const avgImdbRating = average(watched?.map((movie) => movie.imdbRating));
-  const avgUserRating = average(watched?.map((movie) => movie.userRating));
-  const avgRuntime = average(watched?.map((movie) => movie.runtime));
+  const avgImdbRating = average(watched.map((movie) => movie.imdbRating));
+  const avgUserRating = average(watched.map((movie) => movie.userRating));
+  const avgRuntime = average(watched.map((movie) => movie.runtime));
 
   return (
     <div className="summary">
