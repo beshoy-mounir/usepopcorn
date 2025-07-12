@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import StarRating from './StarRating';
+import { useMovies } from './useMovies';
 
 const APIKEY = `${process.env.REACT_APP_API_KEY}`;
 
@@ -8,15 +9,14 @@ const average = (arr) =>
 
 export default function App() {
   const [query, setQuery] = useState('');
-  const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState(function () {
     const storedValue = localStorage.getItem('watched');
     return JSON.parse(storedValue) || [];
   });
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+
   const [selectedId, setSelectedId] = useState(null);
 
+  const { movies, isLoading, error } = useMovies(query, handleCloseMovie);
   function handleSelectedId(id) {
     setSelectedId((selectedId) => (id === selectedId ? null : id));
   }
@@ -37,41 +37,7 @@ export default function App() {
     [watched]
   );
 
-  useEffect(
-    function () {
-      const controller = new AbortController();
-      async function fetchMovies() {
-        try {
-          setIsLoading(true);
-          setError('');
-
-          const res = await fetch(
-            `https://www.omdbapi.com/?apikey=${APIKEY}&s=${query}`,
-            { signal: controller.signal }
-          );
-          if (!res.ok) throw new Error('Something Went Wrong');
-          const data = await res.json();
-          setMovies(data.Search);
-        } catch (err) {
-          setError(err.message);
-        } finally {
-          setIsLoading(false);
-        }
-      }
-      if (query.length < 3) {
-        setMovies([]);
-        setError('');
-        setIsLoading(false);
-        return;
-      }
-      handleCloseMovie();
-      fetchMovies();
-      return function () {
-        controller.abort();
-      };
-    },
-    [query]
-  );
+  //
 
   return (
     <>
@@ -90,7 +56,11 @@ export default function App() {
             <p className="error">Movie Not Found</p>
           )}
           {!isLoading && error && (
-            <p className="error">{`Server error : ${error}`}</p>
+            <p className="error">
+              Server error :-
+              <br /> {`${error}`} <br />
+              Please try again{' '}
+            </p>
           )}
         </Box>
 
