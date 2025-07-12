@@ -3,6 +3,7 @@ import { useMovies } from './useMovies';
 import { useLocalStorageState } from './useLocalStorageState';
 
 import StarRating from './StarRating';
+import { useKey } from './useKey';
 
 const APIKEY = `${process.env.REACT_APP_API_KEY}`;
 
@@ -98,20 +99,11 @@ function Logo() {
 function Search({ query, setQuery }) {
   const inputEl = useRef(null);
 
-  useEffect(
-    function () {
-      function callback(e) {
-        if (document.activeElement === inputEl.current) return;
-
-        if (e.code === 'Enter') {
-          inputEl.current.focus();
-          setQuery('');
-        }
-      }
-      document.addEventListener('keydown', callback);
-    },
-    [setQuery]
-  );
+  useKey('Enter', function () {
+    if (document.activeElement === inputEl.current) return;
+    inputEl.current.focus();
+    setQuery('');
+  });
 
   return (
     <input
@@ -225,19 +217,7 @@ function MovieDetails({ selectedId, handleCloseMovie, onAddWatched, watched }) {
     handleCloseMovie();
   }
 
-  useEffect(
-    function () {
-      function callback(e) {
-        if (e.code === `Escape`) handleCloseMovie();
-      }
-      document.addEventListener('keydown', callback);
-
-      return function () {
-        document.removeEventListener('keydown', callback);
-      };
-    },
-    [handleCloseMovie]
-  );
+  useKey('Escape', handleCloseMovie);
 
   useEffect(
     function () {
